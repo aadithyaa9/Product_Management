@@ -5,6 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { psql } from './config/db.js';
 import { router } from './routes/productRoutes.js';
+import { detect } from './lib/arcjet.js';
 import req from 'express/lib/request.js';
 
 dotenv.config();
@@ -35,7 +36,9 @@ app.use( async(req, res, next) => {
             else {
                 return res.status(403).json({ message: "Access denied: Unknown reason" });
             }
+            
         } 
+        next();
     }
     catch(error) {
         console.error("Error in middleware:", error);
@@ -52,8 +55,8 @@ async function dbInit() {
         CREATE TABLE IF NOT EXISTS products (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
-            link VARCHAR(255) NOT NULL,
-            Price DECIMAL NOT NULL,
+            image_url VARCHAR(255) NOT NULL,
+            price DECIMAL NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         `;

@@ -6,7 +6,7 @@ export const getAllProducts = async(req, res) => {
             `SELECT * FROM products ORDER BY created_at DESC`;
     
         if (productList.length === 0) {
-            res.status(404).json({ message: "" })
+            return res.status(404).json({ message: "" })
         }
         res.status(200).json(productList);
         console.log("Feteched all products");
@@ -17,10 +17,10 @@ export const getAllProducts = async(req, res) => {
 }
 
 export const createProduct = async(req, res) => {
-    const { name, link, Price } = req.body;
+    const { name, image, price } = req.body;
 
 
-    if (!name || !link || !Price) {
+    if (!name || !image || !price) {
         return res.status(400).json({ message: "All fields are required" });
         console.log("Error: Missing required fields");
     }
@@ -28,7 +28,7 @@ export const createProduct = async(req, res) => {
     try {
         const newProduct = await psql`
             INSERT INTO products (name, link, Price)
-            VALUES (${name}, ${link}, ${Price})
+            VALUES (${name}, ${image}, ${price})
             RETURNING *;
         `;
 
@@ -66,11 +66,11 @@ export const getParticularProduct = async(req, res) => {
 
 export const updateProduct = async (req, res) => {
     const { id } = req.params;
-    const { name, link, Price } = req.body;
+    const { name, image, price } = req.body;
     try {
         const updatedProduct = await
             psql`UPDATE products
-            SET name = ${name}, link = ${link}, Price = ${Price}
+            SET name = ${name}, link = ${image}, Price = ${price}
             WHERE id = ${id} returning *;`;
         if (updatedProduct.length === 0) {
             return res.status(404).json({ message: "Product not found" });

@@ -1,4 +1,4 @@
-import { dotenv } from 'dotenv';
+import dotenv from 'dotenv';
 import arcjet , {tokenBucket , detectBot , shield} from '@arcjet/node';
 
 
@@ -11,12 +11,12 @@ export const detect = arcjet({
     rules:
         [
             shield({ mode: "LIVE" }),
-            detectBot({ mode: "LIVE", allowlist: ["googlebot", "bingbot"] }),
+            detectBot({ mode: "LIVE", allow: ["google.com", "bing.com"] }),
             tokenBucket({
                 mode: "LIVE",
                 capacity: 10,
                 refillRate: 5,
-                refillInterval: 5
+                interval: 5
             }),
         ],
 })
