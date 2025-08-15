@@ -5,6 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { psql } from './config/db.js';
 import { router } from './routes/productRoutes.js';
+import req from 'express/lib/request.js';
 
 dotenv.config();
 const app = express();
@@ -14,6 +15,34 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors());
+
+app.use( async(req, res, next) => { 
+    try {
+        const decision = await detect.protect(req, {
+            requested:1
+        });
+
+        if (decision.isBlocked) {
+            if (decision.reason === "BOT") {
+                return res.status(403).json({ message: "Access denied: Bot detected" });
+            }
+            if (decision.reason === "RATE_LIMIT") {
+                return res.status(429).json({ message: "Too many requests, please try again later" });
+            }   
+            if (decision.reason === "SHIELD") {
+                return res.status(403).json({ message: "Access denied: Shield protection active" });
+            }
+            else {
+                return res.status(403).json({ message: "Access denied: Unknown reason" });
+            }
+        } 
+    }
+    catch(error) {
+        console.error("Error in middleware:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+        next(error);
+    }
+})
 
 app.use("/api/products", router);
 
